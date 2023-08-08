@@ -1,8 +1,13 @@
 {
   "name": "ingress-prime-stat",
-  "version": "0.0.0-development",
+  "description": "A lightweight conversion for Ingress Prime stat in TypeScript",
+  "version": "0.0.0-development-rev",
   "main": "src/main.ts",
   "author": "haloivanid <haloivan.idn@gmail.com>",
+  "repository": {
+    "url": "https://github.com/haloivanid/ingress-prime-stat.git",
+    "type": "git"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18.16.0",
