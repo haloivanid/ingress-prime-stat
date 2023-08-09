@@ -340,7 +340,7 @@ class InputParser {
             });
     }
 
-    static fromString(input: string): Record<string, string | number> {
+    static fromString(input: string): Record<string, IngressStatPoint> {
         const lines = input.trim().split('\n');
         if (lines.length !== 2) {
             throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Input must have 2 lines'] });
@@ -360,6 +360,23 @@ class InputParser {
             return obj;
         }, {});
     }
+
+    static fromObject(input: object | Record<string, string | number> | IngressStat): Record<string, IngressStatPoint> {
+        type commonKeys = Extract<keyof typeof input, keyof typeof Meta.storages>;
+        const inputKeys: string[] = Object.keys(input) as commonKeys[];
+        if (inputKeys.every((key) => !(key in Meta.storages))) {
+            throw new IngressStatException('BAD_INPUT_FORMAT', {
+                details: ['Object input must have at least 1 valid key'],
+            });
+        }
+
+        return Object.keys(Meta.storages).reduce((obj: { [p: string]: string | number }, key) => {
+            if (inputKeys.includes(key)) {
+                obj[key] = input[key as commonKeys];
+            }
+            return obj;
+        }, {});
+    }
 }
 
 type IngressStatPoint = string | number;
@@ -367,7 +384,7 @@ export type IngressStatDiff = {
     [p in keyof AllTimeStats]: { left: IngressStatPoint; right: IngressStatPoint; result: IngressStatPoint };
 } & { diffDatetime: { left: Date; right: Date; result: number } };
 
-export type IngressStatInput = string | Record<string, IngressStatPoint> | JSON | IngressStat;
+export type IngressStatInput = string | object | Record<string, IngressStatPoint> | IngressStat;
 
 export class IngressStat extends AllTimeStats {
     private readonly statTimezone: string;
@@ -383,12 +400,8 @@ export class IngressStat extends AllTimeStats {
         let result: Record<string, IngressStatPoint>;
         if (typeof input === 'string') {
             result = InputParser.fromString(input);
-        } else if (input instanceof IngressStat) {
-            result = input as unknown as Record<string, IngressStatPoint>;
-        } else if (typeof input === 'object') {
-            result = input as Record<string, IngressStatPoint>;
         } else {
-            throw new IngressStatException('BAD_INPUT_FORMAT');
+            result = InputParser.fromObject(input);
         }
 
         const metaStorages = Meta.storages;
@@ -434,6 +447,19 @@ export class IngressStat extends AllTimeStats {
         };
 
         return diffResult;
+    }
+
+    toString(options?: { mode?: 'TAB' | 'COMMA' | 'SPACE'; spaceWidth?: 2 | 4 | 8 }): string {
+        const opts = {
+            mode: options?.mode || 'TAB',
+            spaceWidth: options?.spaceWidth || 8,
+        };
+
+        const headers = Object.keys(this).filter((key) => key in Object.keys(Meta.storages));
+        const points: IngressStatPoint[] = headers.map((key) => this[key as keyof AllTimeStats]);
+
+        const separator = opts.mode === 'TAB' ? '\t' : opts.mode === 'COMMA' ? ',' : `${' '.repeat(opts.spaceWidth)}`;
+        return `${headers.join(separator)}\n${points.join(separator)}`;
     }
 }
 
