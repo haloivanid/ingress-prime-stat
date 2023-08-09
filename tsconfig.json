@@ -5,7 +5,7 @@
     "emitDecoratorMetadata": true,
     "module": "commonjs",
     "declaration": true,
-    "outDir": "./dist",
+    "outDir": "./lib",
     "removeComments": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
