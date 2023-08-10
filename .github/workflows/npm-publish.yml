@@ -1,5 +1,8 @@
 name: Publish to NPM
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -20,10 +23,13 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@haloivanid'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install semantic-release
+        run: npm i -g semantic-release
 
-      - run: npm i -g semantic-release
+      - name: Set up Yarn
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
 
       - name: Build lib folder
         run: ./build.sh
@@ -33,4 +39,5 @@ jobs:
           cd lib
           npx semantic-release
         env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
