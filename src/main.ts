@@ -419,6 +419,10 @@ class Validator {
             this.errors.push('Invalid time format');
         }
     }
+
+    static check(input: Record<keyof AllTimeStats, IngressStatPoint>): void {
+        new this(input);
+    }
 }
 
 type IngressStatPoint = string | number;
@@ -458,7 +462,7 @@ export class IngressStat extends AllTimeStats {
             }
         }
 
-        new Validator(this);
+        Validator.check(this);
 
         return this;
     }
