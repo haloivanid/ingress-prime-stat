@@ -134,3 +134,6 @@ dist
 
 # lib
 lib
+
+# package-lock.json
+package-lock.json

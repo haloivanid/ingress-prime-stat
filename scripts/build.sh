@@ -1,11 +1,16 @@
 #!/bin/sh
 
-#preparation
-npx rimraf ./lib
+version=$1
 
-#build tsc
-npx tsc -p tsconfig.json
+npm pkg set version="$version"
+git add .
+
+# build tsc
+npm run build
+
+# post build process
 npx terser ./lib/main.js -c -m -o ./lib/main.js
 
-#postbuild process
-node ./scripts/pkg-builder.js
+cd ./lib || exit 1
+npm pkg set version="$version"
+echo "update lib pkg version: $version"

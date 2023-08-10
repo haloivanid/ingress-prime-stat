@@ -48,4 +48,4 @@ if (Object.keys(devDependencies).length) {
     newPkgJson.devDependencies = devDependencies;
 }
 
-fs.writeFileSync(path.join(rootDir, 'lib', 'package.json'), JSON.stringify(newPkgJson, null, 2));
+fs.writeFile(path.join(rootDir, 'lib', 'package.json'), JSON.stringify(newPkgJson, null, 2), () => null);
