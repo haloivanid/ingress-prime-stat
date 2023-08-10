@@ -6,4 +6,4 @@ mkdir ./lib
 yarn build
 
 cp ./package.lib.json ./lib/package.json
-cp .npmrc ./lib/.npmrc
+echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/lib/.npmrc

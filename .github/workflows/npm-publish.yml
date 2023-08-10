@@ -1,0 +1,36 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.16'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@haloivanid'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - run: npm i -g semantic-release
+
+      - name: Build lib folder
+        run: ./build.sh
+
+      - name: Publish to NPM
+        run: |
+          cd lib
+          npx semantic-release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
