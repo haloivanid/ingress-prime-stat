@@ -18,7 +18,8 @@ class Meta {
             EVENT: 0,
             NON_NULL: 1,
             NUMBER: 2,
-            STRING: 3,
+            REQUIRED: 3,
+            STRING: 4,
         };
     }
 
@@ -35,28 +36,28 @@ class Meta {
 }
 
 class AllTimeStats {
-    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Time Span': string;
 
-    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Agent Name': string;
 
-    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Agent Faction': string;
 
-    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Date (yyyy-mm-dd)': string;
 
-    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Time (hh:mm:ss)': string;
 
-    @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Level': number;
 
-    @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Lifetime AP': number;
 
-    @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL])
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Current AP': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL])
@@ -379,6 +380,47 @@ class InputParser {
     }
 }
 
+class Validator {
+    private readonly exceptionName = 'VALIDATION_ERROR';
+    private errors: string[] = [];
+
+    constructor(private readonly input: Record<keyof AllTimeStats, IngressStatPoint>) {
+        this.required();
+        this.datetime();
+
+        if (this.errors.length > 0) {
+            throw new IngressStatException(this.exceptionName, { details: this.errors });
+        }
+    }
+
+    private required(): void {
+        const requiredFields = Object.keys(Meta.storages).filter((key) =>
+            Meta.storages[key].includes(Meta.propType.REQUIRED),
+        );
+        for (const key of requiredFields) {
+            if (!(key in this.input)) {
+                this.errors.push(`Missing required field ${key}`);
+            }
+        }
+    }
+
+    private datetime(): void {
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const timeRegex = /^\d{2}:\d{2}:\d{2}$/;
+
+        const date = this.input['Date (yyyy-mm-dd)'];
+        const time = this.input['Time (hh:mm:ss)'];
+
+        if (typeof date === 'number' || !dateRegex.test(date)) {
+            this.errors.push('Invalid date format');
+        }
+
+        if (typeof time === 'number' || !timeRegex.test(time)) {
+            this.errors.push('Invalid time format');
+        }
+    }
+}
+
 type IngressStatPoint = string | number;
 export type IngressStatDiff = {
     [p in keyof AllTimeStats]: { left: IngressStatPoint; right: IngressStatPoint; result: IngressStatPoint };
@@ -415,6 +457,9 @@ export class IngressStat extends AllTimeStats {
                 this[key as keyof AllTimeStats] = 0 as never;
             }
         }
+
+        new Validator(this);
+
         return this;
     }
 
@@ -479,6 +524,10 @@ const exceptionCode = {
     UNKNOWN: {
         details: ['Unknown error'],
         message: 'Something went wrong with your stat',
+    },
+    VALIDATION_ERROR: {
+        details: [],
+        message: 'Failed to validate stat, see the details',
     },
     WRONG_TIME_SPAN: {
         details: ['Only support all time span'],
