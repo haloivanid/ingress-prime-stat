@@ -24,6 +24,7 @@ for (const key in pkgJson.devDependencies) {
 const newPkgJson = {
     name: pkgJson.name,
     description: pkgJson.description,
+    readme: pkgJson.readme,
     version: pkgJson.version,
     author: pkgJson.author,
     license: pkgJson.license,
