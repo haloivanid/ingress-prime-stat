@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.0...v1.1.1) (2023-08-24)
+
+
+### Bug Fixes
+
+* **pkg-builder:** remove node engine strict to lib ([e4bb258](https://github.com/haloivanid/ingress-prime-stat/commit/e4bb258cccc7038fe74a29a2fe42e2a990d701fb))
+
 # [1.1.0](https://github.com/haloivanid/ingress-prime-stat/compare/v1.0.0...v1.1.0) (2023-08-11)
 
 
