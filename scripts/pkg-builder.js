@@ -29,7 +29,6 @@ const newPkgJson = {
     author: pkgJson.author,
     license: pkgJson.license,
     repository: pkgJson.repository,
-    engines: pkgJson.engines,
     main: 'main.js',
     types: 'main.d.ts',
     exports: {
