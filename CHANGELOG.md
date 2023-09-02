@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.1...v1.1.2) (2023-09-02)
+
+
+### Bug Fixes
+
+* **lib:** change minimize script config ([#4](https://github.com/haloivanid/ingress-prime-stat/issues/4)) ([b492cd8](https://github.com/haloivanid/ingress-prime-stat/commit/b492cd851eb1e8bec35f4e313fe91be873ff4a1f)), closes [#3](https://github.com/haloivanid/ingress-prime-stat/issues/3)
+
 ## [1.1.1](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.0...v1.1.1) (2023-08-24)
 
 
