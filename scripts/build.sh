@@ -2,15 +2,20 @@
 
 version=$1
 
-npm pkg set version="$version"
-git add .
-
 # build tsc
 npm run build
 
 # post build process
-npx terser ./lib/main.js -c -m -o ./lib/main.js
+npx terser ./lib/main.js --source-map "base='../',content='./lib/main.js.map'" -c -o ./lib/main.js
 
-cd ./lib || exit 1
-npm pkg set version="$version"
-echo "update lib pkg version: $version"
+#check if version is empty
+if [ -z "$version" ]; then
+  echo "version is empty run build only"
+else
+  npm pkg set version="$version"
+  git add .
+
+  cd ./lib || exit 1
+  npm pkg set version="$version"
+  echo "build and update lib pkg version: $version"
+fi
