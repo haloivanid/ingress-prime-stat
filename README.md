@@ -20,7 +20,7 @@ To use Ingress Prime Stat, install using package manager of your choice:
 
 
 ```bash
-npm install @haloivanid/ingress-prime-stat@latest --save
+npm install ingress-prime-stat@latest --save
 ```
 
 ## Usage
@@ -28,17 +28,17 @@ npm install @haloivanid/ingress-prime-stat@latest --save
 Ingress Prime Stat is designed to be used in a JavaScript or TypeScript project:
 
 ```javascript
-const { IngressStat } = require('@haloivanid/ingress-prime-stat');
+const { IngressPrimeStat } = require('ingress-prime-stat');
 
-const stat = new IngressStat('your ingress stat string');
+const stat = IngressPrimeStat.process('your ingress stat string');
 
 console.log(stat.toString());
 ```
 
 ```typescript
-import { IngressStat } from '@haloivanid/ingress-prime-stat';
+import { IngressPrimeStat } from 'ingress-prime-stat';
 
-const stat = new IngressStat('your ingress stat string');
+const stat = IngressPrimeStat.process('your ingress stat string');
 
-console.log(stat.toString());
+console.log(stat.toJSON());
 ```
