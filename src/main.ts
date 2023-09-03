@@ -5,12 +5,30 @@ import utc from 'dayjs/plugin/utc';
 time.extend(utc);
 time.extend(timezone);
 
-class Meta {
-    private static _instance: Meta;
-    private _storages: Record<string, number[]> = {};
+type TPoint = string | number;
+type TDiff = { left: TPoint; right: TPoint; result: TPoint };
+type TDiffDatetime = { left: Date; right: Date; result: number };
+type TKeyFields = keyof IngressPrimeStatFields;
 
-    private static get init(): Meta {
+interface IExceptionOptions {
+    details?: string[];
+    message?: string;
+}
+
+export type IngressStatDiff = { [p in TKeyFields]: TDiff } & { diffDatetime: TDiffDatetime };
+
+export type TInputStat = string | object | Record<string, TPoint> | IngressPrimeStat;
+
+class Meta {
+    private _storages: Record<string, number[]> = {};
+    private static _instance: Meta;
+
+    static get init(): Meta {
         return this._instance || (this._instance = new this());
+    }
+
+    static get storages(): Record<string, number[]> {
+        return Meta.init._storages;
     }
 
     static get propType(): Record<string, number> {
@@ -29,13 +47,148 @@ class Meta {
             storages[property as string] = values;
         };
     }
+}
 
-    static get storages(): Record<string, number[]> {
-        return Meta.init._storages;
+class InputParser {
+    private static readonly allTimeSpanLang: string[] = [
+        'GESAMT',
+        'ALL TIME',
+        'OD POCZĄTKU',
+        "DALL'INIZIO",
+        '全部',
+        'Celé období',
+        'ЗА ВСЕ ВРЕМЯ',
+        'SIEMPRE',
+        'ALLE',
+        'TOUS TEMPS',
+    ];
+
+    private static parseHeader(headerLine: string): string[] {
+        const headers: string[] = [];
+        for (const key of Object.keys(Meta.storages)) {
+            const pos = headerLine.indexOf(key);
+            if (pos > 0) {
+                throw new IngressStatException('FAILED_PARSE_HEADER', {
+                    details: [`${headerLine.substring(0, 25)}...`],
+                });
+            }
+
+            if (pos === 0) {
+                headers.push(key);
+                headerLine = headerLine.substring(key.length).trim();
+            }
+        }
+
+        return headers;
+    }
+
+    private static parsePoint(pointLine: string): (string | number)[] {
+        if (!pointLine.includes('ALL TIME')) throw new IngressStatException('WRONG_TIME_SPAN');
+
+        // replace all time span lang
+        pointLine = InputParser.allTimeSpanLang.reduce(
+            (acc, word) => acc.replace(new RegExp(`^${word}`), 'ALL_TIME'),
+            pointLine,
+        );
+
+        // splitting & parse point line into number and string
+        return pointLine
+            .replace(/\s{2,}/g, ' ')
+            .split(/[\s\t]/)
+            .map((p) => {
+                if (p.match(/^[0-9]+$/)) {
+                    return parseInt(p);
+                } else {
+                    return p.replace('_', ' ');
+                }
+            });
+    }
+
+    static fromString(input: string): Record<string, TPoint> {
+        const lines = input.trim().split('\n');
+        if (lines.length !== 2) {
+            throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Input must have 2 lines'] });
+        }
+
+        const headers = InputParser.parseHeader(lines[0].trim());
+        const points = InputParser.parsePoint(lines[1].trim());
+
+        if (headers.length !== points.length) {
+            throw new IngressStatException('BAD_INPUT_FORMAT', {
+                details: ['Different length between header and point'],
+            });
+        }
+
+        return headers.reduce((obj: { [p: string]: string | number }, key, index) => {
+            obj[key] = points[index];
+            return obj;
+        }, {});
+    }
+
+    static fromObject(input: object | Record<string, string | number> | IngressPrimeStat): Record<string, TPoint> {
+        type commonKeys = Extract<keyof typeof input, keyof typeof Meta.storages>;
+        const inputKeys: string[] = Object.keys(input) as commonKeys[];
+        if (inputKeys.every((key) => !(key in Meta.storages))) {
+            throw new IngressStatException('BAD_INPUT_FORMAT', {
+                details: ['Object input must have at least 1 valid key'],
+            });
+        }
+
+        return Object.keys(Meta.storages).reduce((obj: { [p: string]: string | number }, key) => {
+            if (inputKeys.includes(key)) {
+                obj[key] = input[key as commonKeys];
+            }
+            return obj;
+        }, {});
     }
 }
 
-class AllTimeStats {
+class Validator {
+    private readonly exceptionName = 'VALIDATION_ERROR';
+    private errors: string[] = [];
+
+    constructor(private readonly input: Record<TKeyFields, TPoint>) {
+        this.required();
+        this.datetime();
+
+        if (this.errors.length > 0) {
+            throw new IngressStatException(this.exceptionName, { details: this.errors });
+        }
+    }
+
+    private required(): void {
+        const requiredFields = Object.keys(Meta.storages).filter((key) =>
+            Meta.storages[key].includes(Meta.propType.REQUIRED),
+        );
+        for (const key of requiredFields) {
+            if (!(key in this.input)) {
+                this.errors.push(`Missing required field ${key}`);
+            }
+        }
+    }
+
+    private datetime(): void {
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const timeRegex = /^\d{2}:\d{2}:\d{2}$/;
+
+        const date = this.input['Date (yyyy-mm-dd)'];
+        const time = this.input['Time (hh:mm:ss)'];
+
+        if (typeof date === 'number' || !dateRegex.test(date)) {
+            this.errors.push('Invalid date format');
+        }
+
+        if (typeof time === 'number' || !timeRegex.test(time)) {
+            this.errors.push('Invalid time format');
+        }
+    }
+
+    static check(input: Record<TKeyFields, TPoint>): void {
+        new this(input);
+    }
+}
+
+class IngressPrimeStatFields {
     @Meta.property([Meta.propType.STRING, Meta.propType.NON_NULL, Meta.propType.REQUIRED])
     'Time Span': string;
 
@@ -286,199 +439,114 @@ class AllTimeStats {
     'Months Subscribed': number;
 }
 
-class InputParser {
-    private static readonly allTimeSpanLang: string[] = [
-        'GESAMT',
-        'ALL TIME',
-        'OD POCZĄTKU',
-        "DALL'INIZIO",
-        '全部',
-        'Celé období',
-        'ЗА ВСЕ ВРЕМЯ',
-        'SIEMPRE',
-        'ALLE',
-        'TOUS TEMPS',
-    ];
+export class IngressStatException extends Error {
+    private static readonly errorCode: { [p: string]: { details: string[]; message: string } } = {
+        BAD_INPUT_FORMAT: {
+            details: ['Input is not a string, JSON, or IngressStat'],
+            message: 'Bad input stat, Please check your stat again',
+        },
+        FAILED_PARSE_HEADER: {
+            details: [],
+            message: 'Cannot parse header stat',
+        },
+        TIMEZONE_NEEDED: {
+            details: ['Timezone required but got empty'],
+            message: 'Timezone is needed to define date time, see https://timezonedb.com/time-zones',
+        },
+        UNKNOWN: {
+            details: ['Unknown error'],
+            message: 'Something went wrong with your stat',
+        },
+        VALIDATION_ERROR: {
+            details: [],
+            message: 'Failed to validate stat, see the details',
+        },
+        WRONG_TIME_SPAN: {
+            details: ['Only support all time span'],
+            message: 'Wrong time span, please input only from all time span',
+        },
+    };
 
-    private static parseHeader(headerLine: string): string[] {
-        const headers: string[] = [];
-        for (const key of Object.keys(Meta.storages)) {
-            const pos = headerLine.indexOf(key);
-            if (pos > 0) {
-                throw new IngressStatException('FAILED_PARSE_HEADER', {
-                    details: [`${headerLine.substring(0, 25)}...`],
-                });
-            }
+    code: keyof typeof IngressStatException.errorCode;
+    details: string[];
+    message: string;
 
-            if (pos === 0) {
-                headers.push(key);
-                headerLine = headerLine.substring(key.length).trim();
-            }
-        }
+    constructor(code: keyof typeof IngressStatException.errorCode, opts?: IExceptionOptions) {
+        const message = code === 'UNKNOWN' ? opts?.message : IngressStatException.errorCode[code].message;
+        const details = code === 'UNKNOWN' ? opts?.details : IngressStatException.errorCode[code].details;
 
-        return headers;
-    }
+        super(`Error ${code}, ${message}.${details ? ` Details: ${details.join(', ')}` : ''}`);
 
-    private static parsePoint(pointLine: string): (string | number)[] {
-        if (!pointLine.includes('ALL TIME')) throw new IngressStatException('WRONG_TIME_SPAN');
-
-        // replace all time span lang
-        pointLine = InputParser.allTimeSpanLang.reduce(
-            (acc, word) => acc.replace(new RegExp(`^${word}`), 'ALL_TIME'),
-            pointLine,
-        );
-
-        // splitting & parse point line into number and string
-        return pointLine
-            .replace(/\s{2,}/g, ' ')
-            .split(/[\s\t]/)
-            .map((p) => {
-                if (p.match(/^[0-9]+$/)) {
-                    return parseInt(p);
-                } else {
-                    return p.replace('_', ' ');
-                }
-            });
-    }
-
-    static fromString(input: string): Record<string, IngressStatPoint> {
-        const lines = input.trim().split('\n');
-        if (lines.length !== 2) {
-            throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Input must have 2 lines'] });
-        }
-
-        const headers = InputParser.parseHeader(lines[0].trim());
-        const points = InputParser.parsePoint(lines[1].trim());
-
-        if (headers.length !== points.length) {
-            throw new IngressStatException('BAD_INPUT_FORMAT', {
-                details: ['Different length between header and point'],
-            });
-        }
-
-        return headers.reduce((obj: { [p: string]: string | number }, key, index) => {
-            obj[key] = points[index];
-            return obj;
-        }, {});
-    }
-
-    static fromObject(input: object | Record<string, string | number> | IngressStat): Record<string, IngressStatPoint> {
-        type commonKeys = Extract<keyof typeof input, keyof typeof Meta.storages>;
-        const inputKeys: string[] = Object.keys(input) as commonKeys[];
-        if (inputKeys.every((key) => !(key in Meta.storages))) {
-            throw new IngressStatException('BAD_INPUT_FORMAT', {
-                details: ['Object input must have at least 1 valid key'],
-            });
-        }
-
-        return Object.keys(Meta.storages).reduce((obj: { [p: string]: string | number }, key) => {
-            if (inputKeys.includes(key)) {
-                obj[key] = input[key as commonKeys];
-            }
-            return obj;
-        }, {});
+        this.code = code;
+        this.details = opts?.details || IngressStatException.errorCode[this.code].details;
+        this.message = opts?.message || IngressStatException.errorCode[this.code].message;
     }
 }
 
-class Validator {
-    private readonly exceptionName = 'VALIDATION_ERROR';
-    private errors: string[] = [];
+export class IngressPrimeStat extends IngressPrimeStatFields {
+    private readonly metaStorages = Meta.storages;
+    private readonly statTimezone: string = 'UTC';
 
-    constructor(private readonly input: Record<keyof AllTimeStats, IngressStatPoint>) {
-        this.required();
-        this.datetime();
-
-        if (this.errors.length > 0) {
-            throw new IngressStatException(this.exceptionName, { details: this.errors });
-        }
-    }
-
-    private required(): void {
-        const requiredFields = Object.keys(Meta.storages).filter((key) =>
-            Meta.storages[key].includes(Meta.propType.REQUIRED),
-        );
-        for (const key of requiredFields) {
-            if (!(key in this.input)) {
-                this.errors.push(`Missing required field ${key}`);
-            }
-        }
-    }
-
-    private datetime(): void {
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        const timeRegex = /^\d{2}:\d{2}:\d{2}$/;
-
-        const date = this.input['Date (yyyy-mm-dd)'];
-        const time = this.input['Time (hh:mm:ss)'];
-
-        if (typeof date === 'number' || !dateRegex.test(date)) {
-            this.errors.push('Invalid date format');
-        }
-
-        if (typeof time === 'number' || !timeRegex.test(time)) {
-            this.errors.push('Invalid time format');
-        }
-    }
-
-    static check(input: Record<keyof AllTimeStats, IngressStatPoint>): void {
-        new this(input);
-    }
-}
-
-type IngressStatPoint = string | number;
-export type IngressStatDiff = {
-    [p in keyof AllTimeStats]: { left: IngressStatPoint; right: IngressStatPoint; result: IngressStatPoint };
-} & { diffDatetime: { left: Date; right: Date; result: number } };
-
-export type IngressStatInput = string | object | Record<string, IngressStatPoint> | IngressStat;
-
-export class IngressStat extends AllTimeStats {
-    private readonly statTimezone: string;
-
-    constructor(input: IngressStatInput, timezone?: string) {
+    private constructor(input: TInputStat, timezone?: string) {
         super();
-        this.build(input);
 
-        this.statTimezone = timezone || 'UTC';
+        this.build(input);
+        this.statTimezone = timezone || this.statTimezone;
     }
 
-    private build(input: IngressStatInput): IngressStat {
-        let result: Record<string, IngressStatPoint>;
-        if (typeof input === 'string') {
-            result = InputParser.fromString(input);
-        } else {
-            result = InputParser.fromObject(input);
+    private build(input: TInputStat): IngressPrimeStat {
+        if (!input) {
+            throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Input is empty'] });
         }
 
-        const metaStorages = Meta.storages;
-        for (const key of Object.keys(metaStorages)) {
+        const result: Record<string, TPoint> =
+            typeof input === 'string' ? InputParser.fromString(input) : InputParser.fromObject(input);
+
+        for (const key of Object.keys(this.metaStorages)) {
             if (result[key]) {
-                this[key as keyof AllTimeStats] = result[key] as never;
+                this[key as TKeyFields] = result[key] as never;
                 continue;
             }
 
-            if (metaStorages[key].includes(Meta.propType.NON_NULL) && !result[key]) {
-                this[key as keyof AllTimeStats] = 0 as never;
+            if (this.metaStorages[key].includes(Meta.propType.NON_NULL) && !result[key]) {
+                this[key as TKeyFields] = 0 as never;
             }
         }
 
         Validator.check(this);
-
         return this;
     }
 
-    datetime() {
-        return time.tz(`${this['Date (yyyy-mm-dd)']} ${this['Time (hh:mm:ss)']}`, this.statTimezone).toDate();
+    /**
+     * Ingress Prime Stat
+     * @description This function is used to parse Ingress Prime Stat from string or object
+     * @param input string | object | Record<string, string | number> | IngressPrimeStat
+     * @param timezone string
+     * @returns Promise<IngressPrimeStat>
+     */
+    static process(input: TInputStat, timezone?: string): IngressPrimeStat {
+        return new this(input, timezone);
     }
 
-    diff(other: IngressStat): IngressStatDiff {
+    datetime() {
+        const dateStat = this['Date (yyyy-mm-dd)'];
+        const timeStat = this['Time (hh:mm:ss)'];
+
+        if (!dateStat || !timeStat) {
+            throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Missing date or time'] });
+        }
+
+        return time.tz(`${dateStat} ${timeStat}`, this.statTimezone).toDate();
+    }
+
+    diff(other: IngressPrimeStat): IngressStatDiff {
         const diffResult: IngressStatDiff = {} as IngressStatDiff;
 
         for (const key of Object.keys(Meta.storages)) {
-            const left = this[key as keyof AllTimeStats];
-            const right = other[key as keyof AllTimeStats];
+            const left = this[key as TKeyFields];
+            const right = other[key as TKeyFields];
 
-            let result: IngressStatPoint = 0;
+            let result: TPoint = 0;
             if (typeof left === 'number' && typeof right === 'number') {
                 result = right - left;
             }
@@ -486,7 +554,7 @@ export class IngressStat extends AllTimeStats {
                 result = `${left} => ${right}`;
             }
 
-            diffResult[key as keyof AllTimeStats] = { left, right, result };
+            diffResult[key as TKeyFields] = { left, right, result };
         }
 
         diffResult.diffDatetime = {
@@ -498,6 +566,14 @@ export class IngressStat extends AllTimeStats {
         return diffResult;
     }
 
+    toJSON(): Record<string, TPoint> {
+        const result: Record<string, TPoint> = {};
+        for (const key of Object.keys(Meta.storages)) {
+            result[key] = this[key as TKeyFields];
+        }
+        return result;
+    }
+
     toString(options?: { mode?: 'TAB' | 'COMMA' | 'SPACE'; spaceWidth?: 2 | 4 | 8 }): string {
         const opts = {
             mode: options?.mode || 'TAB',
@@ -505,58 +581,9 @@ export class IngressStat extends AllTimeStats {
         };
 
         const headers = Object.keys(this).filter((key) => key in Object.keys(Meta.storages));
-        const points: IngressStatPoint[] = headers.map((key) => this[key as keyof AllTimeStats]);
+        const points: TPoint[] = headers.map((key) => this[key as TKeyFields]);
 
         const separator = opts.mode === 'TAB' ? '\t' : opts.mode === 'COMMA' ? ',' : `${' '.repeat(opts.spaceWidth)}`;
         return `${headers.join(separator)}\n${points.join(separator)}`;
-    }
-}
-
-const exceptionCode = {
-    BAD_INPUT_FORMAT: {
-        details: ['Input is not a string, JSON, or IngressStat'],
-        message: 'Bad input stat, Please check your stat again',
-    },
-    FAILED_PARSE_HEADER: {
-        details: [],
-        message: 'Cannot parse header stat',
-    },
-    TIMEZONE_NEEDED: {
-        details: ['Timezone required but got empty'],
-        message: 'Timezone is needed to define date time, see https://timezonedb.com/time-zones',
-    },
-    UNKNOWN: {
-        details: ['Unknown error'],
-        message: 'Something went wrong with your stat',
-    },
-    VALIDATION_ERROR: {
-        details: [],
-        message: 'Failed to validate stat, see the details',
-    },
-    WRONG_TIME_SPAN: {
-        details: ['Only support all time span'],
-        message: 'Wrong time span, please input only from all time span',
-    },
-};
-
-interface ExceptionOptions {
-    details?: string[];
-    message?: string;
-}
-
-export class IngressStatException extends Error {
-    code: keyof typeof exceptionCode;
-    details: string[];
-    message: string;
-
-    constructor(code: keyof typeof exceptionCode, opts?: ExceptionOptions) {
-        const message = code === 'UNKNOWN' ? opts?.message : exceptionCode[code].message;
-        const details = code === 'UNKNOWN' ? opts?.details : exceptionCode[code].details;
-
-        super(`Error ${code}, ${message}.${details ? ` Details: ${details.join(', ')}` : ''}`);
-
-        this.code = code;
-        this.details = opts?.details || exceptionCode[this.code].details;
-        this.message = opts?.message || exceptionCode[this.code].message;
     }
 }
