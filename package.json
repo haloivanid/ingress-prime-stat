@@ -22,8 +22,8 @@
     "format": "prettier --write \"**/*.ts\"",
     "lint": "eslint --ext .ts src --fix",
     "semantic-release": "semantic-release",
-    "test": "jest",
-    "test:output": "./scripts/pre-semantic.sh && ./scripts/build.sh && jest"
+    "test": "TZ=UTC jest 'test/src.test.ts'",
+    "test:output": "TZ=UTC ./scripts/pre-semantic.sh && ./scripts/build.sh && jest 'test/output.test.ts'"
   },
   "dependencies": {
     "dayjs": "^1.11.9"
