@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.2...v1.1.3) (2023-09-03)
+
+
+### Bug Fixes
+
+* **lib:** fix showing minimized code ([fd92c49](https://github.com/haloivanid/ingress-prime-stat/commit/fd92c495447a044b37bb5362cc59aa90210aa9ec)), closes [#3](https://github.com/haloivanid/ingress-prime-stat/issues/3)
+
 ## [1.1.2](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.1...v1.1.2) (2023-09-02)
 
 
