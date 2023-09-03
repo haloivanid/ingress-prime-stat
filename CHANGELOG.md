@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.3...v2.0.0) (2023-09-03)
+
+
+### Code Refactoring
+
+* **main:** change process convertion ([7a66571](https://github.com/haloivanid/ingress-prime-stat/commit/7a6657116d124bf01814cd71ae1c9a7f1c7918fd))
+
+
+### BREAKING CHANGES
+
+* **main:** To convert now is not initiate the class but use process method for more
+readability
+
 ## [1.1.3](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.2...v1.1.3) (2023-09-03)
 
 
