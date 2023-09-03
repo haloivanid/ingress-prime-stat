@@ -6,7 +6,7 @@ version=$1
 npm run build
 
 # post build process
-npx terser ./lib/main.js --source-map "base='../',content='./lib/main.js.map'" -c -o ./lib/main.js
+# npx terser ./lib/main.js --source-map "base='../',content='./lib/main.js.map'" -c -o ./lib/main.js
 
 #check if version is empty
 if [ -z "$version" ]; then

@@ -2,7 +2,7 @@
   "name": "ingress-prime-stat",
   "description": "A lightweight conversion for Ingress Prime stat in TypeScript",
   "readme": "README.md",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "main": "src/main.ts",
   "author": "haloivanid <haloivan.idn@gmail.com>",
   "repository": {
