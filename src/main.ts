@@ -484,14 +484,17 @@ export class IngressStatException extends Error {
 }
 
 export class IngressPrimeStat extends IngressPrimeStatFields {
-    private readonly metaStorages = Meta.storages;
-    private readonly statTimezone: string = 'UTC';
+    private timezone: string = 'UTC';
 
     private constructor(input: TInputStat, timezone?: string) {
         super();
 
         this.build(input);
-        this.statTimezone = timezone || this.statTimezone;
+        this.timezone = timezone || this.timezone;
+    }
+
+    private metaStorages(): Record<string, number[]> {
+        return Meta.storages;
     }
 
     private build(input: TInputStat): IngressPrimeStat {
@@ -502,13 +505,13 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         const result: Record<string, TPoint> =
             typeof input === 'string' ? InputParser.fromString(input) : InputParser.fromObject(input);
 
-        for (const key of Object.keys(this.metaStorages)) {
+        for (const key of Object.keys(this.metaStorages())) {
             if (result[key]) {
                 this[key as TKeyFields] = result[key] as never;
                 continue;
             }
 
-            if (this.metaStorages[key].includes(Meta.propType.NON_NULL) && !result[key]) {
+            if (this.metaStorages()[key].includes(Meta.propType.NON_NULL) && !result[key]) {
                 this[key as TKeyFields] = 0 as never;
             }
         }
@@ -536,7 +539,7 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
             throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Missing date or time'] });
         }
 
-        return time.tz(`${dateStat} ${timeStat}`, this.statTimezone).toDate();
+        return time.tz(`${dateStat} ${timeStat}`, this.timezone).toDate();
     }
 
     diff(other: IngressPrimeStat): IngressStatDiff {
@@ -580,7 +583,7 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
             spaceWidth: options?.spaceWidth || 8,
         };
 
-        const headers = Object.keys(this).filter((key) => key in Object.keys(Meta.storages));
+        const headers = Object.getOwnPropertyNames(this).filter((key) => Object.keys(Meta.storages).includes(key));
         const points: TPoint[] = headers.map((key) => this[key as TKeyFields]);
 
         const separator = opts.mode === 'TAB' ? '\t' : opts.mode === 'COMMA' ? ',' : `${' '.repeat(opts.spaceWidth)}`;
