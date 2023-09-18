@@ -580,7 +580,7 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
             spaceWidth: options?.spaceWidth || 8,
         };
 
-        const headers = Object.keys(this).filter((key) => key in Object.keys(Meta.storages));
+        const headers = Object.getOwnPropertyNames(this).filter((key) => Object.keys(Meta.storages).includes(key));
         const points: TPoint[] = headers.map((key) => this[key as TKeyFields]);
 
         const separator = opts.mode === 'TAB' ? '\t' : opts.mode === 'COMMA' ? ',' : `${' '.repeat(opts.spaceWidth)}`;
