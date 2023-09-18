@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.0...v2.0.1) (2023-09-18)
+
+
+### Bug Fixes
+
+* toString method and hide metastorages property ([#8](https://github.com/haloivanid/ingress-prime-stat/issues/8)) ([ff05fd0](https://github.com/haloivanid/ingress-prime-stat/commit/ff05fd08163a07892e56cb54051e549525fc1056)), closes [#6](https://github.com/haloivanid/ingress-prime-stat/issues/6) [#7](https://github.com/haloivanid/ingress-prime-stat/issues/7)
+
 # [2.0.0](https://github.com/haloivanid/ingress-prime-stat/compare/v1.1.3...v2.0.0) (2023-09-03)
 
 
