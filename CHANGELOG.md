@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.1...v2.0.2) (2023-09-20)
+
+
+### Bug Fixes
+
+* **diff:** resolve diff problem ([c14d20b](https://github.com/haloivanid/ingress-prime-stat/commit/c14d20bc6448b7dc0e1f7a41cedb565b14d03574)), closes [#9](https://github.com/haloivanid/ingress-prime-stat/issues/9)
+
 ## [2.0.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.0...v2.0.1) (2023-09-18)
 
 
