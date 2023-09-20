@@ -542,16 +542,35 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         return time.tz(`${dateStat} ${timeStat}`, this.timezone).toDate();
     }
 
-    diff(other: IngressPrimeStat): IngressStatDiff {
+    diff(other: IngressPrimeStat, opts?: { mode?: 'OLD2NEW' | 'NEW2OLD'; filter?: boolean }): IngressStatDiff {
         const diffResult: IngressStatDiff = {} as IngressStatDiff;
 
+        const classes = [this, other];
+        let cLeft = classes[0];
+        let cRight = classes[1];
+
+        if (opts?.mode) {
+            const classSorted = classes.sort((a, b) => a.datetime().getTime() - b.datetime().getTime());
+            switch (opts?.mode) {
+                case 'OLD2NEW':
+                    cLeft = classSorted[0];
+                    cRight = classSorted[1];
+                    break;
+                case 'NEW2OLD':
+                    cLeft = classSorted[1];
+                    cRight = classSorted[0];
+                    break;
+            }
+        }
+
         for (const key of Object.keys(Meta.storages)) {
-            const left = this[key as TKeyFields];
-            const right = other[key as TKeyFields];
+            const left = cLeft[key as TKeyFields] || 0;
+            const right = cRight[key as TKeyFields] || 0;
 
             let result: TPoint = 0;
             if (typeof left === 'number' && typeof right === 'number') {
                 result = right - left;
+                if (opts?.filter && result <= 0) continue;
             }
             if (typeof left === 'string' && typeof right === 'string') {
                 result = `${left} => ${right}`;
@@ -561,9 +580,9 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         }
 
         diffResult.diffDatetime = {
-            left: this.datetime(),
-            right: other.datetime(),
-            result: time(this.datetime()).diff(time(other.datetime()), 'seconds'),
+            left: cLeft.datetime(),
+            right: cRight.datetime(),
+            result: time(cLeft.datetime()).diff(time(cRight.datetime()), 'seconds'),
         };
 
         return diffResult;
