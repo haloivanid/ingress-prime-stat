@@ -63,8 +63,20 @@ class InputParser {
         'TOUS TEMPS',
     ];
 
+    private static normalizeHeader: { [key: string]: string[] } = {
+        'Discoverie: Kinetic Capsules': ['Discovery: Kinetic Capsules'],
+    };
+
     private static parseHeader(headerLine: string): string[] {
         const headers: string[] = [];
+
+        // normalize header
+        for (const [key, values] of Object.entries(this.normalizeHeader)) {
+            for (const value of values) {
+                headerLine = headerLine.replace(value, key);
+            }
+        }
+
         for (const key of Object.keys(Meta.storages)) {
             const pos = headerLine.indexOf(key);
             if (pos > 0) {
@@ -92,16 +104,13 @@ class InputParser {
         );
 
         // splitting & parse point line into number and string
-        return pointLine
-            .replace(/\s{2,}/g, ' ')
-            .split(/[\s\t]/)
-            .map((p) => {
-                if (p.match(/^[0-9]+$/)) {
-                    return parseInt(p);
-                } else {
-                    return p.replace('_', ' ');
-                }
-            });
+        return pointLine.split(/[\s\t,;|]+/).map((p) => {
+            if (p.match(/^[0-9]+$/)) {
+                return parseInt(p);
+            } else {
+                return p.replace('_', ' ');
+            }
+        });
     }
 
     static fromString(input: string): Record<string, TPoint> {
@@ -385,6 +394,12 @@ class IngressPrimeStatFields {
     'Stealth Ops Missions': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Urban Ops Missions': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Ctrl': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Epiphany Dawn': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
@@ -427,7 +442,13 @@ class IngressPrimeStatFields {
     'Superposition': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
-    'Ctrl': number;
+    'Echo': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Discoverie': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Discoverie: Kinetic Capsules': number;
 
     @Meta.property([Meta.propType.NUMBER])
     'Agents Recruited': number;
@@ -484,7 +505,7 @@ export class IngressStatException extends Error {
 }
 
 export class IngressPrimeStat extends IngressPrimeStatFields {
-    private timezone: string = 'UTC';
+    private readonly timezone: string = 'UTC';
 
     private constructor(input: TInputStat, timezone?: string) {
         super();
@@ -596,16 +617,29 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         return result;
     }
 
-    toString(options?: { mode?: 'TAB' | 'COMMA' | 'SPACE'; spaceWidth?: 2 | 4 | 8 }): string {
+    toString(options?: {
+        delimiter?: 'TAB' | 'COMMA' | 'SEMICOLON' | 'SPACE' | 'PIPE';
+        spaceWidth?: 2 | 4 | 8;
+    }): string {
+        const defineDelimiter = {
+            TAB: '\t',
+            COMMA: ',',
+            SEMICOLON: ';',
+            SPACE: ' ',
+            PIPE: '|',
+        };
+
         const opts = {
-            mode: options?.mode || 'TAB',
+            mode: options?.delimiter || 'TAB',
             spaceWidth: options?.spaceWidth || 8,
         };
 
         const headers = Object.getOwnPropertyNames(this).filter((key) => Object.keys(Meta.storages).includes(key));
         const points: TPoint[] = headers.map((key) => this[key as TKeyFields]);
 
-        const separator = opts.mode === 'TAB' ? '\t' : opts.mode === 'COMMA' ? ',' : `${' '.repeat(opts.spaceWidth)}`;
+        let separator = defineDelimiter[opts.mode];
+        separator = opts.mode === 'SPACE' ? separator.repeat(opts.spaceWidth) : separator;
+
         return `${headers.join(separator)}\n${points.join(separator)}`;
     }
 }
