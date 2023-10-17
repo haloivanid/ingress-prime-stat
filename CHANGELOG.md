@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.2...v2.0.3) (2023-10-17)
+
+
+### Bug Fixes
+
+* **main:** key stat and converter ([7b5a3ec](https://github.com/haloivanid/ingress-prime-stat/commit/7b5a3ec7dfc13b7207a6d84143688f0d26adc576))
+
 ## [2.0.2](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.1...v2.0.2) (2023-09-20)
 
 
