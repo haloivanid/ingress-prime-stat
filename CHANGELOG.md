@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.3...v2.0.4) (2023-10-18)
+
+
+### Bug Fixes
+
+* **converter:** fail parse header ([d795872](https://github.com/haloivanid/ingress-prime-stat/commit/d79587273a5a48642fb6d13ca8058524fda5ad3f))
+
 ## [2.0.3](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.2...v2.0.3) (2023-10-17)
 
 
