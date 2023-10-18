@@ -15,6 +15,11 @@ interface IExceptionOptions {
     message?: string;
 }
 
+interface IToStringOptions {
+    delimiter?: 'TAB' | 'COMMA' | 'SEMICOLON' | 'SPACE' | 'PIPE';
+    spaceLength?: number;
+}
+
 export type IngressStatDiff = { [p in TKeyFields]: TDiff } & { diffDatetime: TDiffDatetime };
 
 export type TInputStat = string | object | Record<string, TPoint> | IngressPrimeStat;
@@ -49,7 +54,7 @@ class Meta {
     }
 }
 
-class InputParser {
+class Converter {
     private static readonly allTimeSpanLang: string[] = [
         'GESAMT',
         'ALL TIME',
@@ -63,25 +68,23 @@ class InputParser {
         'TOUS TEMPS',
     ];
 
-    private static normalizeHeader: { [key: string]: string[] } = {
-        'Discoverie: Kinetic Capsules': ['Discovery: Kinetic Capsules'],
-    };
-
     private static parseHeader(headerLine: string): string[] {
         const headers: string[] = [];
 
-        // normalize header
-        for (const [key, values] of Object.entries(this.normalizeHeader)) {
-            for (const value of values) {
-                headerLine = headerLine.replace(value, key);
-            }
-        }
+        const findPositionKey = (key: string, isLastKey: boolean): number => {
+            key = key.replace(/[-()]/g, '\\$&');
+            const find = isLastKey ? key : new RegExp(`(${key})[\\s\\t,;|]+`, 'g');
+            return headerLine.substring(0).search(find);
+        };
 
-        for (const key of Object.keys(Meta.storages)) {
-            const pos = headerLine.indexOf(key);
+        const listFields = Object.keys(Meta.storages);
+        for (const key of listFields) {
+            const isLastKey = key === listFields[listFields.length - 1];
+            const pos = findPositionKey(key, isLastKey);
+
             if (pos > 0) {
                 throw new IngressStatException('FAILED_PARSE_HEADER', {
-                    details: [`${headerLine.substring(0, 25)}...`],
+                    details: [`${headerLine.substring(0, 40)}...`],
                 });
             }
 
@@ -94,11 +97,11 @@ class InputParser {
         return headers;
     }
 
-    private static parsePoint(pointLine: string): (string | number)[] {
+    private static parsePoint(pointLine: string): (number | string)[] {
         if (!pointLine.includes('ALL TIME')) throw new IngressStatException('WRONG_TIME_SPAN');
 
         // replace all time span lang
-        pointLine = InputParser.allTimeSpanLang.reduce(
+        pointLine = this.allTimeSpanLang.reduce(
             (acc, word) => acc.replace(new RegExp(`^${word}`), 'ALL_TIME'),
             pointLine,
         );
@@ -119,8 +122,8 @@ class InputParser {
             throw new IngressStatException('BAD_INPUT_FORMAT', { details: ['Input must have 2 lines'] });
         }
 
-        const headers = InputParser.parseHeader(lines[0].trim());
-        const points = InputParser.parsePoint(lines[1].trim());
+        const headers = this.parseHeader(lines[0].trim());
+        const points = this.parsePoint(lines[1].trim());
 
         if (headers.length !== points.length) {
             throw new IngressStatException('BAD_INPUT_FORMAT', {
@@ -149,6 +152,37 @@ class InputParser {
             }
             return obj;
         }, {});
+    }
+
+    static toString(stat: IngressPrimeStat, options?: IToStringOptions): string {
+        const defineDelimiter = {
+            TAB: '\t',
+            COMMA: ',',
+            SEMICOLON: ';',
+            SPACE: ' ',
+            PIPE: '|',
+        };
+
+        const opts = {
+            mode: options?.delimiter || 'TAB',
+            spaceLength: options?.spaceLength || 8,
+        };
+
+        const headers = Object.getOwnPropertyNames(stat).filter((key) => Object.keys(Meta.storages).includes(key));
+        const points: TPoint[] = headers.map((key) => stat[key as TKeyFields]);
+
+        let separator = defineDelimiter[opts.mode];
+        separator = opts.mode === 'SPACE' ? separator.repeat(opts.spaceLength) : separator;
+
+        return `${headers.join(separator)}\n${points.join(separator)}`;
+    }
+
+    static toJSON(stat: IngressPrimeStat): Record<string, TPoint> {
+        const result: Record<string, TPoint> = {};
+        for (const key of Object.keys(Meta.storages)) {
+            result[key] = stat[key as TKeyFields];
+        }
+        return result;
     }
 }
 
@@ -524,7 +558,7 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         }
 
         const result: Record<string, TPoint> =
-            typeof input === 'string' ? InputParser.fromString(input) : InputParser.fromObject(input);
+            typeof input === 'string' ? Converter.fromString(input) : Converter.fromObject(input);
 
         for (const key of Object.keys(this.metaStorages())) {
             if (result[key]) {
@@ -610,36 +644,10 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
     }
 
     toJSON(): Record<string, TPoint> {
-        const result: Record<string, TPoint> = {};
-        for (const key of Object.keys(Meta.storages)) {
-            result[key] = this[key as TKeyFields];
-        }
-        return result;
+        return Converter.toJSON(this);
     }
 
-    toString(options?: {
-        delimiter?: 'TAB' | 'COMMA' | 'SEMICOLON' | 'SPACE' | 'PIPE';
-        spaceWidth?: 2 | 4 | 8;
-    }): string {
-        const defineDelimiter = {
-            TAB: '\t',
-            COMMA: ',',
-            SEMICOLON: ';',
-            SPACE: ' ',
-            PIPE: '|',
-        };
-
-        const opts = {
-            mode: options?.delimiter || 'TAB',
-            spaceWidth: options?.spaceWidth || 8,
-        };
-
-        const headers = Object.getOwnPropertyNames(this).filter((key) => Object.keys(Meta.storages).includes(key));
-        const points: TPoint[] = headers.map((key) => this[key as TKeyFields]);
-
-        let separator = defineDelimiter[opts.mode];
-        separator = opts.mode === 'SPACE' ? separator.repeat(opts.spaceWidth) : separator;
-
-        return `${headers.join(separator)}\n${points.join(separator)}`;
+    toString(options?: IToStringOptions): string {
+        return Converter.toString(this, options);
     }
 }
