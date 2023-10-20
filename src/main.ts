@@ -535,6 +535,8 @@ export class IngressStatException extends Error {
         this.code = code;
         this.details = opts?.details || IngressStatException.errorCode[this.code].details;
         this.message = opts?.message || IngressStatException.errorCode[this.code].message;
+
+        this.message = `${this.message} - ${this.details.toString()}`;
     }
 }
 
