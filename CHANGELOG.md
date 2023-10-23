@@ -1,3 +1,11 @@
+## [2.0.5](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.4...v2.0.5) (2023-10-23)
+
+
+### Bug Fixes
+
+* **converter:** handle discoverie field problem ([68d256b](https://github.com/haloivanid/ingress-prime-stat/commit/68d256b3fec1fb09ec5c6a23f7c4a6f23ca8254e))
+* **error:** add error details to message ([d8fc8c2](https://github.com/haloivanid/ingress-prime-stat/commit/d8fc8c29694188418423b7b0ad288fde784727bc))
+
 ## [2.0.4](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.3...v2.0.4) (2023-10-18)
 
 
