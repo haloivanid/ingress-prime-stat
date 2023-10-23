@@ -20,6 +20,10 @@ interface IToStringOptions {
     spaceLength?: number;
 }
 
+interface IToJSONOptions {
+    showAllStat?: boolean;
+}
+
 export type IngressStatDiff = { [p in TKeyFields]: TDiff } & { diffDatetime: TDiffDatetime };
 
 export type TInputStat = string | object | Record<string, TPoint> | IngressPrimeStat;
@@ -68,19 +72,24 @@ class Converter {
         'TOUS TEMPS',
     ];
 
+    private static readonly headerMask: { [p in keyof Partial<IngressPrimeStatFields>]: string } = {
+        'Discoverie: Kinetic Capsules': 'Discovery: Kinetic Capsules',
+    };
+
     private static parseHeader(headerLine: string): string[] {
+        for (const [key, value] of Object.entries(this.headerMask)) {
+            headerLine = headerLine.replace(new RegExp(key, 'g'), value);
+        }
+
         const headers: string[] = [];
 
-        const findPositionKey = (key: string, isLastKey: boolean): number => {
-            key = key.replace(/[-()]/g, '\\$&');
-            const find = isLastKey ? key : new RegExp(`(${key})[\\s\\t,;|]+`, 'g');
-            return headerLine.substring(0).search(find);
-        };
-
         const listFields = Object.keys(Meta.storages);
-        for (const key of listFields) {
-            const isLastKey = key === listFields[listFields.length - 1];
-            const pos = findPositionKey(key, isLastKey);
+        for (let key of listFields) {
+            if (key in Object.keys(this.headerMask)) {
+                key = this.headerMask[key as keyof typeof this.headerMask] || key;
+            }
+
+            const pos = headerLine.indexOf(key);
 
             if (pos > 0) {
                 throw new IngressStatException('FAILED_PARSE_HEADER', {
@@ -177,10 +186,13 @@ class Converter {
         return `${headers.join(separator)}\n${points.join(separator)}`;
     }
 
-    static toJSON(stat: IngressPrimeStat): Record<string, TPoint> {
+    static toJSON(stat: IngressPrimeStat, opts?: IToJSONOptions): Record<string, TPoint> {
+        const options = { showAllStat: opts?.showAllStat || false };
+
         const result: Record<string, TPoint> = {};
         for (const key of Object.keys(Meta.storages)) {
-            result[key] = stat[key as TKeyFields];
+            if (!options.showAllStat && !stat[key as TKeyFields]) continue;
+            result[key] = stat[key as TKeyFields] || 0;
         }
         return result;
     }
@@ -645,8 +657,8 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         return diffResult;
     }
 
-    toJSON(): Record<string, TPoint> {
-        return Converter.toJSON(this);
+    toJSON(optsions?: IToJSONOptions): Record<string, TPoint> {
+        return Converter.toJSON(this, optsions);
     }
 
     toString(options?: IToStringOptions): string {
