@@ -1,3 +1,10 @@
+## [2.0.6](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.5...v2.0.6) (2023-11-02)
+
+
+### Bug Fixes
+
+* **diff:** string point filter ([fd47446](https://github.com/haloivanid/ingress-prime-stat/commit/fd47446c153d2fa19a346a435dbd2c75084d5ddf))
+
 ## [2.0.5](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.4...v2.0.5) (2023-10-23)
 
 
