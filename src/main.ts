@@ -643,6 +643,7 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
             }
             if (typeof left === 'string' && typeof right === 'string') {
                 result = `${left} => ${right}`;
+                if (opts?.filter && left === right) continue;
             }
 
             diffResult[key as TKeyFields] = { left, right, result };
@@ -657,8 +658,8 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
         return diffResult;
     }
 
-    toJSON(optsions?: IToJSONOptions): Record<string, TPoint> {
-        return Converter.toJSON(this, optsions);
+    toJSON(options?: IToJSONOptions): Record<string, TPoint> {
+        return Converter.toJSON(this, options);
     }
 
     toString(options?: IToStringOptions): string {
