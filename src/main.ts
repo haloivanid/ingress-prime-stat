@@ -85,7 +85,7 @@ class Converter {
 
         const listFields = Object.keys(Meta.storages);
         for (let key of listFields) {
-            if (key in Object.keys(this.headerMask)) {
+            if (Object.keys(this.headerMask).includes(key)) {
                 key = this.headerMask[key as keyof typeof this.headerMask] || key;
             }
 
