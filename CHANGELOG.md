@@ -1,3 +1,10 @@
+## [2.0.8](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.7...v2.0.8) (2023-11-13)
+
+
+### Bug Fixes
+
+* **main:** monkey patch ([0b857d9](https://github.com/haloivanid/ingress-prime-stat/commit/0b857d9c6c05f8dafab1ca46538974e7078214b0))
+
 ## [2.0.7](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.6...v2.0.7) (2023-11-13)
 
 
