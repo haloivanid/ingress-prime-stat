@@ -655,6 +655,8 @@ export class IngressPrimeStat extends IngressPrimeStatFields {
             result: time(cLeft.datetime()).diff(time(cRight.datetime()), 'seconds'),
         };
 
+        // TODO: add no diff function
+
         return diffResult;
     }
 
