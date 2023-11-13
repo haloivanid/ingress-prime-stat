@@ -344,6 +344,9 @@ class IngressPrimeStatFields {
     'Glyph Hack Points': number;
 
     @Meta.property([Meta.propType.NUMBER])
+    'Overclock Hack Points': number;
+
+    @Meta.property([Meta.propType.NUMBER])
     'Completed Hackstreaks': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.NON_NULL])
