@@ -1,3 +1,10 @@
+## [2.0.9](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.8...v2.0.9) (2023-11-13)
+
+
+### Bug Fixes
+
+* **main:** add overclock stat and patch github action ([3718fdf](https://github.com/haloivanid/ingress-prime-stat/commit/3718fdf63cf1b71253138be69faef28ec472a140))
+
 ## [2.0.8](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.7...v2.0.8) (2023-11-13)
 
 
