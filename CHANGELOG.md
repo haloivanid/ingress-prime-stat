@@ -1,3 +1,10 @@
+## [2.0.7](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.6...v2.0.7) (2023-11-13)
+
+
+### Bug Fixes
+
+* **main:** false handle header mask ([b5d780f](https://github.com/haloivanid/ingress-prime-stat/commit/b5d780f0879cd4ccb193d0b85496d28162227dc4))
+
 ## [2.0.6](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.5...v2.0.6) (2023-11-02)
 
 
