@@ -142,6 +142,10 @@ class Converter {
         }
 
         return headers.reduce((obj: { [p: string]: string | number }, key, index) => {
+            const masks = Object.entries(this.headerMask);
+            const isMasked = masks.find((mask) => mask[1] === key);
+            if (isMasked) key = isMasked[0];
+
             obj[key] = points[index];
             return obj;
         }, {});
