@@ -74,6 +74,7 @@ class Converter {
 
     private static readonly headerMask: { [p in keyof Partial<IngressPrimeStatFields>]: string } = {
         'Discoverie: Kinetic Capsules': 'Discovery: Kinetic Capsules',
+        'Discoverie: Machina Reclaims': 'Discovery: Machina Reclaims',
     };
 
     private static parseHeader(headerLine: string): string[] {
@@ -498,6 +499,9 @@ class IngressPrimeStatFields {
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Discoverie: Kinetic Capsules': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Discoverie: Machina Reclaims': number;
 
     @Meta.property([Meta.propType.NUMBER])
     'Agents Recruited': number;
