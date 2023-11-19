@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.0...v2.1.1) (2023-11-19)
+
+
+### Bug Fixes
+
+* **converter:** resolve problem header mask ([68afea2](https://github.com/haloivanid/ingress-prime-stat/commit/68afea23feec41e26e769d6a35c5be2548e4def0))
+
 # [2.1.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.9...v2.1.0) (2023-11-19)
 
 
