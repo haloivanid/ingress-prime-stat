@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.9...v2.1.0) (2023-11-19)
+
+
+### Features
+
+* **stat:** add Discoverie: Machina Reclaims ([1e1435e](https://github.com/haloivanid/ingress-prime-stat/commit/1e1435ef453bf898fd45300f9a39392b8a721546))
+
 ## [2.0.9](https://github.com/haloivanid/ingress-prime-stat/compare/v2.0.8...v2.0.9) (2023-11-13)
 
 
