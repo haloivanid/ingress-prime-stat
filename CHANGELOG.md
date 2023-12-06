@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.1...v2.1.2) (2023-12-06)
+
+
+### Bug Fixes
+
+* **main:** add opertation chronos points ([55c39da](https://github.com/haloivanid/ingress-prime-stat/commit/55c39daac0baaaa5f4b4e4ac1ec19186e9fdfaa1))
+
 ## [2.1.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.0...v2.1.1) (2023-11-19)
 
 
