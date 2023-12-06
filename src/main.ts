@@ -502,6 +502,9 @@ class IngressPrimeStatFields {
     'Discoverie': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Operation Chronos Points': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Discoverie: Kinetic Capsules': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
