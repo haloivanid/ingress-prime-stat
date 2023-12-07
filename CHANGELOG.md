@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.2...v2.1.3) (2023-12-07)
+
+
+### Bug Fixes
+
+* **main:** reposition ops chronos ([2a77eb0](https://github.com/haloivanid/ingress-prime-stat/commit/2a77eb0d392a5ce76f5432af8ec0a1e74fdf53d8))
+
 ## [2.1.2](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.1...v2.1.2) (2023-12-06)
 
 
