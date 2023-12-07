@@ -499,10 +499,10 @@ class IngressPrimeStatFields {
     'Echo': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
-    'Discoverie': number;
+    'Operation Chronos Points': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
-    'Operation Chronos Points': number;
+    'Discoverie': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Discoverie: Kinetic Capsules': number;
