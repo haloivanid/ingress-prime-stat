@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.3...v2.2.0) (2024-01-16)
+
+
+### Features
+
+* **main:** add cryptic field ([61ac02a](https://github.com/haloivanid/ingress-prime-stat/commit/61ac02a073d23a7021c72c74c27d258488c2f329))
+
 ## [2.1.3](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.2...v2.1.3) (2023-12-07)
 
 
