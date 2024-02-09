@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.2.0...v2.3.0) (2024-02-09)
+
+
+### Features
+
+* **key:** add research key ([b52491a](https://github.com/haloivanid/ingress-prime-stat/commit/b52491a1d2e01f8fd60fecec91bb6fdc92bb56f5))
+
 # [2.2.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.1.3...v2.2.0) (2024-01-16)
 
 
