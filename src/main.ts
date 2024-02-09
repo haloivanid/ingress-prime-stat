@@ -417,6 +417,12 @@ class IngressPrimeStatFields {
     @Meta.property([Meta.propType.NUMBER])
     'Agents Successfully Recruited': number;
 
+    @Meta.property([Meta.propType.NUMBER])
+    'Research Bounties Completed': number;
+
+    @Meta.property([Meta.propType.NUMBER])
+    'Research Days Completed': number;
+
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Mission Day(s) Attended': number;
 
