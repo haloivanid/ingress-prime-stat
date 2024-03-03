@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.3.0...v2.4.0) (2024-03-03)
+
+
+### Features
+
+* **main:** cryptic memories ([ebb3e05](https://github.com/haloivanid/ingress-prime-stat/commit/ebb3e05766e1d08886c68f9b4f9abcdf055d0060))
+
 # [2.3.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.2.0...v2.3.0) (2024-02-09)
 
 
