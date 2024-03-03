@@ -1,3 +1,10 @@
+## [2.4.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.4.0...v2.4.1) (2024-03-03)
+
+
+### Bug Fixes
+
+* **action:** node version ([77d7797](https://github.com/haloivanid/ingress-prime-stat/commit/77d7797f55e3559ddb1e783848b2e8f124be986b))
+
 # [2.4.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.3.0...v2.4.0) (2024-03-03)
 
 
