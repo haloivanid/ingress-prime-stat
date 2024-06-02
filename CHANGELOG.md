@@ -1,3 +1,10 @@
+## [2.4.2](https://github.com/haloivanid/ingress-prime-stat/compare/v2.4.1...v2.4.2) (2024-06-02)
+
+
+### Bug Fixes
+
+* add cryptic ([505d55b](https://github.com/haloivanid/ingress-prime-stat/commit/505d55bc0993054336cd5a4211740d8a7c4a089b))
+
 ## [2.4.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.4.0...v2.4.1) (2024-03-03)
 
 
