@@ -517,6 +517,12 @@ class IngressPrimeStatFields {
     'Discoverie: Machina Reclaims': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Buried Memories Global Op Points': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Buried Memories Anomaly Points': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Cryptic Memories Global Op Points': number;
 
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
