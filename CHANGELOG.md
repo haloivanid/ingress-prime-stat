@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.4.2...v2.5.0) (2024-11-12)
+
+
+### Features
+
+* **stat:** adds event stats for q3 & q4 events ([bd69760](https://github.com/haloivanid/ingress-prime-stat/commit/bd6976009464535d82d7935d246995e94ee6a383))
+
 ## [2.4.2](https://github.com/haloivanid/ingress-prime-stat/compare/v2.4.1...v2.4.2) (2024-06-02)
 
 
