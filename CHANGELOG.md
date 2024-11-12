@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/haloivanid/ingress-prime-stat/compare/v2.5.0...v2.5.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* **publish:** versioning problem ([88a0567](https://github.com/haloivanid/ingress-prime-stat/commit/88a0567938b7e8e1b11b378f23dcbe0e930f38b4))
+
 # [2.5.0](https://github.com/haloivanid/ingress-prime-stat/compare/v2.4.2...v2.5.0) (2024-11-12)
 
 
