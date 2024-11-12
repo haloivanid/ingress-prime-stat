@@ -528,6 +528,21 @@ class IngressPrimeStatFields {
     @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
     'Cryptic Memories': number;
 
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Shared Memories Global Op Points': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Shared Memories Anomaly Points': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Field Test Dispatch': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Erased Memories Global Op Points': number;
+
+    @Meta.property([Meta.propType.NUMBER, Meta.propType.EVENT])
+    'Erased Memories Anomaly Points': number;
+
     @Meta.property([Meta.propType.NUMBER])
     'Agents Recruited': number;
 
